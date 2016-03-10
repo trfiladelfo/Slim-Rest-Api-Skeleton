@@ -17,7 +17,7 @@ $container['logger'] = function ($c) {
 $container['errorHandler'] = function ($c) {
     return function ($request, $response, $exception) use ($c) {
         $data = [
-            'code' => $exception->getCode(),
+            'error_code' => $exception->getCode(),
             'message' => $exception->getMessage(),
             'file' => $exception->getFile(),
             'line' => $exception->getLine(),
@@ -26,7 +26,7 @@ $container['errorHandler'] = function ($c) {
         return $c->get('response')
                  ->withStatus(500)
                  ->withHeader("Content-Type",  "application/json")
-                 ->write(json_encode($data));
+                 ->writeJson($data);
     };
 };
 
@@ -34,20 +34,28 @@ $container['errorHandler'] = function ($c) {
 $container['notFoundHandler'] = function ($c) {
     return function ($request, $response) use ($c) {
         $data = [
-            'code' => 404,
+            'error_code' => 404,
             'message' => 'Route Not Found',
         ];
         return $c->get('response')
                  ->withStatus(404)
                  ->withHeader("Content-Type", "application/json")
-                 ->write(json_encode($data));
+                 ->withJson($data);
     };
 };
 
-//return result
-$container['json'] = function ($c) {
-    
+//notAllowedHandler
+$container['notAllowedHandler'] = function ($c) {
+    return function ($request, $response, $methods) use ($c) {
+        $data = [
+            'error_code' => '405',
+            'message' => 'Not Allow',
+        ];
+        return $c->get('response')
+                 ->withStatus(405)
+                 ->withHeader("Content-Type", "application/json")
+                 ->writeJson($data);
+    };
 };
-
 
 
